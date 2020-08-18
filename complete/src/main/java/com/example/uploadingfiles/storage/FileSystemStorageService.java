@@ -1,5 +1,6 @@
 package com.example.uploadingfiles.storage;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -28,7 +29,7 @@ public class FileSystemStorageService implements StorageService {
 	}
 
 	@Override
-	public void store(MultipartFile file) {
+	public void store(MultipartFile file,String type,String projectName) {
 		String filename = StringUtils.cleanPath(file.getOriginalFilename());
 		try {
 			if (file.isEmpty()) {
@@ -40,8 +41,20 @@ public class FileSystemStorageService implements StorageService {
 						"Cannot store file with relative path outside current directory "
 								+ filename);
 			}
+
+			String PATH = "/remote/dir/server/";
+
+
+			File directory = new File(this.rootLocation.toString()+"/"+projectName);
+			if (! directory.exists()){
+				directory.mkdir();
+				// If you require it to make the entire directory path including parents,
+				// use directory.mkdirs(); here instead.
+			}
+
+
 			try (InputStream inputStream = file.getInputStream()) {
-				Files.copy(inputStream, this.rootLocation.resolve(filename),
+				Files.copy(inputStream, this.rootLocation.resolve(projectName+"/"+type+filename),
 					StandardCopyOption.REPLACE_EXISTING);
 			}
 		}
